@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -45,8 +46,47 @@ func Test2() {
 
 }
 
+func Test3() *http.Response {
+	req, err := http.NewRequest(http.MethodGet, "http://localhost:8888/hello", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	client := http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return res
+}
+
+func Request(method string, url string) *http.Response {
+	req, err := http.NewRequest(method, url, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	client := http.Client{}
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return res
+
+}
+
 func main() {
-	res := Test1()
-	fmt.Println(res.StatusCode)
-	// Test2()
+
+	res := Request("GET", "http://localhost:3000/json")
+	defer res.Body.Close()
+
+	data, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(string(data))
+
 }
